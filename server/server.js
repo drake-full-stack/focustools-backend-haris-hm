@@ -30,12 +30,84 @@ app.get("/", (req, res) => {
   });
 });
 
-// TODO: Add your Task routes here
 // POST /api/tasks
+app.post("/api/tasks", async (req, res) => {
+  try {
+    const newTask = new Task(req.body);
+    const savedTask = await newTask.save();
+
+    res.status(201).json(savedTask);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 // GET /api/tasks
+app.get("/api/tasks", async (req, res) => {
+  try {
+    const tasks = await Task.find();
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // GET /api/tasks/:id
+app.get("/api/tasks/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const task = await Task.findById(id);
+
+    if (!task) {
+      return res.status(404).json({
+        message: `Task with ID "${id}" not found`,
+      });
+    }
+
+    res.json(task);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // PUT /api/tasks/:id
+app.put("/api/tasks/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updatedTask = await Task.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedTask) {
+      return res.status(404).json({
+        message: `Task with ID "${id}" not found`,
+      });
+    }
+
+    res.json(updatedTask);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 // DELETE /api/tasks/:id
+app.delete("/api/tasks/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deletedTask = await Task.findByIdAndDelete(id);
+
+    if (!deletedTask) {
+      return res.status(404).json({
+        message: `Task with ID "${id}" not found`,
+      });
+    }
+
+    res.json(deletedTask);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 // TODO: Add your Session routes here
 // POST /api/sessions
